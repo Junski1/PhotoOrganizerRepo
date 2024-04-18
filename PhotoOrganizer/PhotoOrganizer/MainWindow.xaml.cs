@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -33,8 +34,8 @@ namespace PhotoOrganizer
         {
             public FileInfo File;
             public string Date;
-            public string Lat;
-            public string Long;
+            //public string Lat;
+            //public string Long;
             public string Manufactorer;
             public string Model;
         }
@@ -75,7 +76,7 @@ namespace PhotoOrganizer
             }
 
             DirectoryInfo _dir = new DirectoryInfo($@"{_dirPath}\");
-
+            
             List<ImageInfo> _images = new List<ImageInfo>();
             List<ImageInfo> _removableImgs = new List<ImageInfo>();
 
@@ -99,8 +100,8 @@ namespace PhotoOrganizer
 
                             File = _info,
                             Date = CheckPropertyId(_tempImg, 0x9003),
-                            Lat = CheckPropertyId(_tempImg, 0x0002, true),
-                            Long = CheckPropertyId(_tempImg, 0x0004, true),
+                            //Lat = CheckPropertyId(_tempImg, 0x0002, true),
+                            //Long = CheckPropertyId(_tempImg, 0x0004, true),
                             Manufactorer = CheckPropertyId(_tempImg, 0x010F),
                             Model = CheckPropertyId(_tempImg, 0x0110).Replace(' ', '_')
                         }
@@ -108,6 +109,7 @@ namespace PhotoOrganizer
                 }
                 catch (Exception _e) { MessageBox.Show(_e.ToString()); }
 
+                ConsoleBox.Text += $"File Found {Environment.NewLine}";
                 _tempImg.Dispose();
             }
 
