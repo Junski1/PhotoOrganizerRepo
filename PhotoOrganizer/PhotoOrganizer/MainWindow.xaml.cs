@@ -60,7 +60,7 @@ namespace PhotoOrganizer
 
         private void StartProcess(string _dirPath, string[] _extensions)
         {
-            Console.Text = string.Empty;
+            ConsoleBox.Text = string.Empty;
 
             if (_extensions.Length <= 0)
             {
@@ -112,8 +112,8 @@ namespace PhotoOrganizer
             }
 
 
-            Console.Text += $@"{_images.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}";
-            //MessageBox.Show($"{_images.Count} files were found with ({_extensions}) Extensions in @{_dirPath} directory!");
+            ConsoleBox.Text += $@"{_images.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}";
+
             ProgBar.Maximum = _images.Count;
             ProgBar.Value = 0;
 
@@ -150,7 +150,7 @@ namespace PhotoOrganizer
                     //if file already exist delete duplicate
                     if (File.Exists(_curDir))
                     {
-                        Console.Text += $"{_imgInfo.File.Name} duplicate has been deleted.{Environment.NewLine}";
+                        ConsoleBox.Text += $"{_imgInfo.File.Name} duplicate has been deleted.{Environment.NewLine}";
 
                         _removableImgs.Add(_imgInfo);
                         _imgInfo.File.Delete();
@@ -165,12 +165,13 @@ namespace PhotoOrganizer
                 }
                 catch (Exception _e)
                 {
-                    Console.Text += $"{_e.Message}. on line {_e.Source}.{Environment.NewLine}";
+                    ConsoleBox.Text += $"{_e.Message}. on line {_e.Source}.{Environment.NewLine}";
                 }
             }
 
             //remove all deleted flies from images
             _images.RemoveAll(_item => _item == _removableImgs.Find(_rItem => _rItem == _item));
+            ConsoleBox.Text += $@"{_images.Count} files moved / deleted!";
 
             RenameFiles(_images);
         }
@@ -267,6 +268,8 @@ namespace PhotoOrganizer
 
                 ProgBar.Value++;
             }
+
+            ConsoleBox.Text += $@"{_files.Count} files renamed!";
         }
         private void CreateDir(ref string _curDir, string _nextDir)
         {
@@ -275,7 +278,7 @@ namespace PhotoOrganizer
             if (!Directory.Exists(_curDir))
             {
                 Directory.CreateDirectory(_curDir);
-                Console.Text += $"{_nextDir} folder created.{Environment.NewLine}";
+                ConsoleBox.Text += $"{_nextDir} folder created.{Environment.NewLine}";
             }
         }
         #endregion
