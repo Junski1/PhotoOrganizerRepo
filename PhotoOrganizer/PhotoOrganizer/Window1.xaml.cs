@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,6 +19,7 @@ namespace PhotoOrganizer
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public partial class Window1 : Window
     {
         Window mainWin = null;

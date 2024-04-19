@@ -1,4 +1,5 @@
-﻿
+﻿using MediaToolkit;
+using MediaToolkit.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -82,35 +83,39 @@ namespace PhotoOrganizer
 
             foreach (FileInfo _info in _dir.GetFilesByExtensions(_extensions))
             {
-                Image _tempImg = new Bitmap(_info.FullName);
-
-                try
+                //using(Engine()
+                MediaFile _mediaFile = new MediaFile(_info.FullName);
+                using (Engine _engine = new Engine()) { _engine.GetMetadata(_mediaFile); }
+                ConsoleBox.Text += _mediaFile.Metadata.VideoData;
+                using (Image _tempImg = new Bitmap(_info.FullName))
                 {
-                    _images.Add
-                    (
-                        new ImageInfo
-                        {
-                            /*  
-                             * 0x9003 = date
-                             * 0x0002 = Lat
-                             * 0x0004 = Long
-                             * 0x010F = manufactorer
-                             * 0x0110 = model
-                             */
+                    try
+                    {
+                        _images.Add
+                        (
+                            new ImageInfo
+                            {
+                                /*  
+                                 * 0x9003 = date
+                                 * 0x0002 = Lat
+                                 * 0x0004 = Long
+                                 * 0x010F = manufactorer
+                                 * 0x0110 = model
+                                 */
 
-                            File = _info,
-                            Date = CheckPropertyId(_tempImg, 0x9003),
-                            //Lat = CheckPropertyId(_tempImg, 0x0002, true),
-                            //Long = CheckPropertyId(_tempImg, 0x0004, true),
-                            Manufactorer = CheckPropertyId(_tempImg, 0x010F),
-                            Model = CheckPropertyId(_tempImg, 0x0110).Replace(' ', '_')
-                        }
-                    );
+                                File = _info,
+                                Date = CheckPropertyId(_tempImg, 0x9003),
+                                //Lat = CheckPropertyId(_tempImg, 0x0002, true),
+                                //Long = CheckPropertyId(_tempImg, 0x0004, true),
+                                Manufactorer = CheckPropertyId(_tempImg, 0x010F),
+                                Model = CheckPropertyId(_tempImg, 0x0110).Replace(' ', '_')
+                            }
+                        );
+                    }
+                    catch (Exception _e) { MessageBox.Show(_e.ToString()); }
                 }
-                catch (Exception _e) { MessageBox.Show(_e.ToString()); }
 
                 ConsoleBox.Text += $"File Found {Environment.NewLine}";
-                _tempImg.Dispose();
             }
 
 
@@ -173,7 +178,7 @@ namespace PhotoOrganizer
 
             //remove all deleted flies from images
             _images.RemoveAll(_item => _item == _removableImgs.Find(_rItem => _rItem == _item));
-            ConsoleBox.Text += $@"{_images.Count} files moved / deleted!";
+            ConsoleBox.Text += $@"{_images.Count} files moved / deleted!{Environment.NewLine}";
 
             RenameFiles(_images);
         }
@@ -271,7 +276,7 @@ namespace PhotoOrganizer
                 ProgBar.Value++;
             }
 
-            ConsoleBox.Text += $@"{_files.Count} files renamed!";
+            ConsoleBox.Text += $@"{_files.Count} files renamed!{Environment.NewLine}";
         }
         private void CreateDir(ref string _curDir, string _nextDir)
         {

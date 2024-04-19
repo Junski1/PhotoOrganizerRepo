@@ -7,12 +7,12 @@
       "RelativeMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|solutionrelative:photoorganizer\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|e:\\dev\\vs\\photoorganizerrepo\\photoorganizer\\photoorganizer\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|solutionrelative:photoorganizer\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|e:\\dev\\vs\\photoorganizerrepo\\photoorganizer\\photoorganizer\\window1.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|solutionrelative:photoorganizer\\window1.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|e:\\dev\\vs\\photoorganizerrepo\\photoorganizer\\photoorganizer\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|solutionrelative:photoorganizer\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B259C24F-498D-4C05-AFA0-D2A47C475FDC}|PhotoOrganizer\\PhotoOrganizer.csproj|e:\\dev\\vs\\photoorganizerrepo\\photoorganizer\\photoorganizer\\window1.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -30,15 +30,16 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Window1.xaml.cs",
               "DocumentMoniker": "E:\\DEV\\VS\\PhotoOrganizerRepo\\PhotoOrganizer\\PhotoOrganizer\\Window1.xaml.cs",
               "RelativeDocumentMoniker": "PhotoOrganizer\\Window1.xaml.cs",
               "ToolTip": "E:\\DEV\\VS\\PhotoOrganizerRepo\\PhotoOrganizer\\PhotoOrganizer\\Window1.xaml.cs",
               "RelativeToolTip": "PhotoOrganizer\\Window1.xaml.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAASAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-04-18T13:55:25.972Z"
+              "WhenOpened": "2024-04-18T13:55:25.972Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -49,7 +50,8 @@
               "ToolTip": "E:\\DEV\\VS\\PhotoOrganizerRepo\\PhotoOrganizer\\PhotoOrganizer\\Window1.xaml",
               "RelativeToolTip": "PhotoOrganizer\\Window1.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-04-18T13:55:25.13Z"
+              "WhenOpened": "2024-04-18T13:55:25.13Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -59,21 +61,22 @@
               "RelativeDocumentMoniker": "PhotoOrganizer\\MainWindow.xaml.cs",
               "ToolTip": "E:\\DEV\\VS\\PhotoOrganizerRepo\\PhotoOrganizer\\PhotoOrganizer\\MainWindow.xaml.cs",
               "RelativeToolTip": "PhotoOrganizer\\MainWindow.xaml.cs",
-              "ViewState": "AQIAABwAAAAAAAAAAAAAwFQAAAA8AAAA",
+              "ViewState": "AQIAAEUAAAAAAAAAAAAwwFkAAABDAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-18T13:55:22.208Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "E:\\DEV\\VS\\PhotoOrganizerRepo\\PhotoOrganizer\\PhotoOrganizer\\MainWindow.xaml",
               "RelativeDocumentMoniker": "PhotoOrganizer\\MainWindow.xaml",
               "ToolTip": "E:\\DEV\\VS\\PhotoOrganizerRepo\\PhotoOrganizer\\PhotoOrganizer\\MainWindow.xaml",
               "RelativeToolTip": "PhotoOrganizer\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-04-18T13:55:16.326Z"
+              "WhenOpened": "2024-04-18T13:55:16.326Z",
+              "EditorCaption": ""
             }
           ]
         }
