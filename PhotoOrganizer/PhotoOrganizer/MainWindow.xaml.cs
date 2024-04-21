@@ -1,6 +1,4 @@
-﻿using MediaToolkit;
-using MediaToolkit.Model;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -34,11 +32,11 @@ namespace PhotoOrganizer
         class ImageInfo
         {
             public FileInfo File;
-            public string Date;
+            public string Date = string.Empty;
             //public string Lat;
             //public string Long;
-            public string Manufactorer;
-            public string Model;
+            public string Manufactorer = string.Empty;
+            public string Model = string.Empty;
         }
 
         public MainWindow()
@@ -83,14 +81,11 @@ namespace PhotoOrganizer
 
             foreach (FileInfo _info in _dir.GetFilesByExtensions(_extensions))
             {
-                //using(Engine()
-                MediaFile _mediaFile = new MediaFile(_info.FullName);
-                using (Engine _engine = new Engine()) { _engine.GetMetadata(_mediaFile); }
-                ConsoleBox.Text += _mediaFile.Metadata.VideoData;
-                using (Image _tempImg = new Bitmap(_info.FullName))
+                try
                 {
-                    try
+                    using (Image _tempImg = new Bitmap(_info.FullName))
                     {
+                        ConsoleBox.Text += "Can create iamge";
                         _images.Add
                         (
                             new ImageInfo
@@ -112,14 +107,33 @@ namespace PhotoOrganizer
                             }
                         );
                     }
-                    catch (Exception _e) { MessageBox.Show(_e.ToString()); }
                 }
+                catch (Exception _e) 
+                {
+                    _images.Add
+                    (
+                        new ImageInfo
+                        {
+                                 /*  
+                                  * 0x9003 = date
+                                  * 0x0002 = Lat
+                                  * 0x0004 = Long
+                                  * 0x010F = manufactorer
+                                  * 0x0110 = model
+                                  */
 
+                            File = _info,
+                            Date = _info.CreationTime.ToString(),
+                            Manufactorer = "Video",
+                            Model = "Video"
+                        }
+                    );
+                }
                 ConsoleBox.Text += $"File Found {Environment.NewLine}";
             }
 
 
-            ConsoleBox.Text += $@"{_images.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}";
+            ConsoleBox.Text += $@"{Environment.NewLine}{_images.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}{Environment.NewLine}";
 
             ProgBar.Maximum = _images.Count;
             ProgBar.Value = 0;
@@ -180,7 +194,8 @@ namespace PhotoOrganizer
             _images.RemoveAll(_item => _item == _removableImgs.Find(_rItem => _rItem == _item));
             ConsoleBox.Text += $@"{_images.Count} files moved / deleted!{Environment.NewLine}";
 
-            RenameFiles(_images);
+            if(RenameCheck.IsChecked.GetValueOrDefault())
+                RenameFiles(_images);
         }
 
         #region GetFiles
