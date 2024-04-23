@@ -14,8 +14,8 @@
         <Button x:Name="StartBtn" Content="Start" Margin="98,383,570,0" VerticalAlignment="Top" Height="41" Width="132" Click="StartBtn_Click" FontSize="20"/>
         <TextBox x:Name="ConsoleBox" TextWrapping="Wrap" Width="419" FontSize="16" Height="254" Padding="0,5,0,0" Background="#FFCECECE" MinHeight="245" RenderTransformOrigin="0.5,0.5" AllowDrop="False" VerticalScrollBarVisibility="Visible" Margin="371,170,10,10" IsReadOnly="True"/>
         <ListBox x:Name="ExtensionList" Margin="10,248,0,0" FontSize="20" SelectionMode="Multiple" Background="#FFCECECE" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" Width="309" Height="67">
-            <ListBoxItem Content="Photos" UseLayoutRounding="True" FontStyle="Italic" FontWeight="Bold" Tag=".jpg/.jpeg/.png" HorizontalContentAlignment="Center" VerticalContentAlignment="Top"/>
-            <ListBoxItem Content="Videos" UseLayoutRounding="True" FontStyle="Italic" FontWeight="Bold" Tag=".mp4/.mov/.avi/.gif" VerticalContentAlignment="Top"/>
+            <ListBoxItem x:Name="ImageExtentions" Content="Photos" UseLayoutRounding="True" FontStyle="Italic" FontWeight="Bold" Tag=".jpg/.jpeg/.png" HorizontalContentAlignment="Center" VerticalContentAlignment="Top"/>
+            <ListBoxItem x:Name="VideoExtentions" Content="Videos" UseLayoutRounding="True" FontStyle="Italic" FontWeight="Bold" Tag=".mp4/.mov/.avi/.gif" VerticalContentAlignment="Top"/>
         </ListBox>
         <Label x:Name="ExtentionTxt" Content="Extentions&#xD;&#xA;Extentions" HorizontalAlignment="Left" Margin="10,214,0,0" VerticalAlignment="Top" Width="210" Height="34" FontSize="20"/>
         <Label x:Name="ConsoleTxt" Content="Console&#xD;&#xA;Console" HorizontalAlignment="Left" Margin="371,136,0,0" VerticalAlignment="Top" Width="210" Height="34" FontSize="20"/>

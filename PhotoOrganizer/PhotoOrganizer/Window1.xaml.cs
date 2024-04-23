@@ -20,6 +20,7 @@ namespace PhotoOrganizer
     /// Interaction logic for Window1.xaml
     /// </summary>
     [SupportedOSPlatform("windows")]
+    //TODO: Make Images for Path search
     public partial class Window1 : Window
     {
         Window mainWin = null;

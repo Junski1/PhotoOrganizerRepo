@@ -19,6 +19,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using static System.Net.Mime.MediaTypeNames;
 using Image = System.Drawing.Image;
+using GoogleMaps.LocationServices;
+using static System.Net.WebRequestMethods;
+using File = System.IO.File;
+using Microsoft.Graph.Models;
 
 
 namespace PhotoOrganizer
@@ -33,8 +37,8 @@ namespace PhotoOrganizer
         {
             public FileInfo File;
             public string Date = string.Empty;
-            //public string Lat;
-            //public string Long;
+            public string Lat = string.Empty;
+            public string Long = string.Empty;
             public string Manufactorer = string.Empty;
             public string Model = string.Empty;
         }
@@ -58,6 +62,11 @@ namespace PhotoOrganizer
         }
         #endregion
 
+        DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        
+        List<ImageInfo> images = new List<ImageInfo>();
+        List<ImageInfo> removableImgs = new List<ImageInfo>();
+
         private void StartProcess(string _dirPath, string[] _extensions)
         {
             ConsoleBox.Text = string.Empty;
@@ -74,19 +83,26 @@ namespace PhotoOrganizer
                 return;
             }
 
-            DirectoryInfo _dir = new DirectoryInfo($@"{_dirPath}\");
-            
-            List<ImageInfo> _images = new List<ImageInfo>();
-            List<ImageInfo> _removableImgs = new List<ImageInfo>();
+            GetFiles(_dirPath, _extensions);
 
-            foreach (FileInfo _info in _dir.GetFilesByExtensions(_extensions))
+            ProcessFiles();
+
+            if(RenameCheck.IsChecked.GetValueOrDefault())
+               RenameFiles(images);
+        }
+
+        #region GetFiles
+        private void GetFiles(string _dirPath, string[] _extensions)
+        {
+            dir = new DirectoryInfo($@"{_dirPath}\");
+
+            foreach (FileInfo _info in dir.GetFilesByExtensions(_extensions))
             {
                 try
                 {
                     using (Image _tempImg = new Bitmap(_info.FullName))
                     {
-                        ConsoleBox.Text += "Can create iamge";
-                        _images.Add
+                        images.Add
                         (
                             new ImageInfo
                             {
@@ -100,27 +116,27 @@ namespace PhotoOrganizer
 
                                 File = _info,
                                 Date = CheckPropertyId(_tempImg, 0x9003),
-                                //Lat = CheckPropertyId(_tempImg, 0x0002, true),
-                                //Long = CheckPropertyId(_tempImg, 0x0004, true),
+                                Lat = CheckPropertyId(_tempImg, 0x0002, true),
+                                Long = CheckPropertyId(_tempImg, 0x0004, true),
                                 Manufactorer = CheckPropertyId(_tempImg, 0x010F),
                                 Model = CheckPropertyId(_tempImg, 0x0110).Replace(' ', '_')
                             }
                         );
                     }
                 }
-                catch (Exception _e) 
+                catch (Exception _e)
                 {
-                    _images.Add
+                    images.Add
                     (
                         new ImageInfo
                         {
-                                 /*  
-                                  * 0x9003 = date
-                                  * 0x0002 = Lat
-                                  * 0x0004 = Long
-                                  * 0x010F = manufactorer
-                                  * 0x0110 = model
-                                  */
+                            /*  
+                             * 0x9003 = date
+                             * 0x0002 = Lat
+                             * 0x0004 = Long
+                             * 0x010F = manufactorer
+                             * 0x0110 = model
+                             */
 
                             File = _info,
                             Date = _info.CreationTime.ToString(),
@@ -133,72 +149,12 @@ namespace PhotoOrganizer
             }
 
 
-            ConsoleBox.Text += $@"{Environment.NewLine}{_images.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}{Environment.NewLine}";
+            ConsoleBox.Text += $@"{Environment.NewLine}{images.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}{Environment.NewLine}";
 
-            ProgBar.Maximum = _images.Count;
+            ProgBar.Maximum = images.Count;
             ProgBar.Value = 0;
 
-            DateTime _curDate = DateTime.Now;
-
-            foreach (ImageInfo _imgInfo in _images)
-            {
-                string _curDir = _dir.FullName;
-
-                try
-                {
-                    //here create folder for the place photo is taken
-
-                    //string _Lat = _imgInfo.Lat;
-                    //string _Long = _imgInfo.Long;
-
-                    //creates a directory for the year the photo is taken
-                    _curDate = DateTime.Parse(_imgInfo.Date);
-
-                    CreateDir(ref _curDir, _curDate.Year.ToString());
-
-                    //creates a directory for the day and month the photo is taken
-                    CreateDir(ref _curDir, $@"{_curDate.Day}_{_curDate.Month}");
-
-                    _curDir += _imgInfo.File.Name;
-
-                    //if file is already in the right place dont move it
-                    if (_imgInfo.File.FullName == _curDir)
-                    {
-                        ProgBar.Value++;
-                        continue;
-                    }
-
-                    //if file already exist delete duplicate
-                    if (File.Exists(_curDir))
-                    {
-                        ConsoleBox.Text += $"{_imgInfo.File.Name} duplicate has been deleted.{Environment.NewLine}";
-
-                        _removableImgs.Add(_imgInfo);
-                        _imgInfo.File.Delete();
-
-                        ProgBar.Value++;
-                        continue;
-                    }
-
-                    _imgInfo.File.MoveTo(_curDir);
-
-                    ProgBar.Value++;
-                }
-                catch (Exception _e)
-                {
-                    ConsoleBox.Text += $"{_e.Message}. on line {_e.Source}.{Environment.NewLine}";
-                }
-            }
-
-            //remove all deleted flies from images
-            _images.RemoveAll(_item => _item == _removableImgs.Find(_rItem => _rItem == _item));
-            ConsoleBox.Text += $@"{_images.Count} files moved / deleted!{Environment.NewLine}";
-
-            if(RenameCheck.IsChecked.GetValueOrDefault())
-                RenameFiles(_images);
         }
-
-        #region GetFiles
         private string CheckPropertyId(Image _img, Int32 _id, bool _isBit = false)
         {
             string _result = string.Empty;
@@ -260,7 +216,6 @@ namespace PhotoOrganizer
                     _elems.Add(_tag.ToLower());
                     _elems.Add(_tag.ToUpper());
                 }
-
             }
 
             return _elems.ToArray<string>();
@@ -268,6 +223,101 @@ namespace PhotoOrganizer
         #endregion
 
         #region ProcessFiles
+        private void ProcessFiles()
+        {
+            DateTime _curDate = DateTime.Now;
+
+            foreach (ImageInfo _imgInfo in images)
+            {
+                string _curDir = dir.FullName;
+
+                try
+                {
+                    //creates a directory for the year the photo is taken
+                    _curDate = DateTime.Parse(_imgInfo.Date);
+
+                    CreateDir(ref _curDir, _curDate.Year.ToString());
+
+
+ 
+
+                    /*
+                     * Uncomment this code to get Lat and Long converted to Andress.
+                     * 
+                     * Requires a APIKey from google! Can be acquired for free for 1 year, after that it has to be paid for
+                     * Not used in personal use
+                     * 
+                     * 
+                    GoogleLocationService _loc = new GoogleLocationService();
+                    AddressData _address = null;
+
+                    ConsoleBox.Text += $"{_imgInfo.Lat}, {_imgInfo.Long}{Environment.NewLine}";
+                    if (double.TryParse(_imgInfo.Lat, out double _lat) && double.TryParse(_imgInfo.Long, out double _long))
+                        _address = _loc.GetAddressFromLatLang(double.Parse(_imgInfo.Lat), double.Parse(_imgInfo.Long));
+
+                    if (_address != null)
+                    {
+                        
+                        CreateDir(ref _curDir, _address.Country);
+                        CreateDir(ref _curDir, _address.City);
+                    }
+                    */
+
+
+                    //creates a directory for the day and month the photo is taken
+                    CreateDir(ref _curDir, $@"{_curDate.Day}_{_curDate.Month}");
+
+                    _curDir += _imgInfo.File.Name;
+
+                    //if file is already in the right place dont move it
+                    if (_imgInfo.File.FullName == _curDir)
+                    {
+                        ProgBar.Value++;
+                        continue;
+                    }
+
+                    //TODO: Duplicate check
+                    DirectoryInfo _tempDir = new DirectoryInfo(_curDir);
+
+                    //if file already exist delete duplicate
+                    foreach (FileInfo _file in _tempDir.GetFiles())
+                    {
+                        if (_imgInfo.File == _file)
+                        {
+                            removableImgs.Add(_imgInfo);
+                            _imgInfo.File.Delete();
+
+                            ProgBar.Value++;
+
+                            
+                            continue;
+                        }
+                    }
+                    //if (File.Exists(_curDir))
+                    //{
+                    //    
+                    //    removableImgs.Add(_imgInfo);
+                    //    _imgInfo.File.Delete();
+                    //    ConsoleBox.Text += $"{_imgInfo.File.Name} duplicate has been deleted.{Environment.NewLine}";
+                    //    ProgBar.Value++;
+                    //    continue;
+                    //}
+
+                    _imgInfo.File.MoveTo(_curDir);
+
+                    ProgBar.Value++;
+                }
+                catch (Exception _e)
+                {
+                ConsoleBox.Text += $"{_e.Message}. on line {_e.Source}.{Environment.NewLine}";
+                }
+            }
+
+            //remove all deleted flies from images
+            images.RemoveAll(_item => _item == removableImgs.Find(_rItem => _rItem == _item));
+            ConsoleBox.Text += $@"{images.Count} files moved / deleted!{Environment.NewLine}";
+        }
+
         private void RenameFiles(List<ImageInfo> _files)
         {
             ProgBar.Maximum = _files.Count;
