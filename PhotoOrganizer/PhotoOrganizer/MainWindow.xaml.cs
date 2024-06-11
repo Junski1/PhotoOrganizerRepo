@@ -63,12 +63,10 @@ namespace PhotoOrganizer
         #endregion
 
         DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
-        
-        List<ImageInfo> images = new List<ImageInfo>();
-        List<ImageInfo> removableImgs = new List<ImageInfo>();
 
-        private void StartProcess(string _dirPath, string[] _extensions)
+        private async void StartProcess(string _dirPath, string[] _extensions)
         {
+
             ConsoleBox.Text = string.Empty;
 
             if (_extensions.Length <= 0)
@@ -83,16 +81,19 @@ namespace PhotoOrganizer
                 return;
             }
 
-            GetFiles(_dirPath, _extensions);
+            List<ImageInfo> _images = new List<ImageInfo>();
+            List<ImageInfo> _removableImgs = new List<ImageInfo>();
 
-            ProcessFiles();
+            await GetFiles(ref _images, _dirPath, _extensions);
+
+            ProcessFiles(_images);
 
             if(RenameCheck.IsChecked.GetValueOrDefault())
-               RenameFiles(images);
+               RenameFiles(_images);
         }
 
         #region GetFiles
-        private void GetFiles(string _dirPath, string[] _extensions)
+        private async Task GetFiles(ref List<ImageInfo> _files, string _dirPath, string[] _extensions)
         {
             dir = new DirectoryInfo($@"{_dirPath}\");
 
@@ -102,7 +103,7 @@ namespace PhotoOrganizer
                 {
                     using (Image _tempImg = new Bitmap(_info.FullName))
                     {
-                        images.Add
+                        _files.Add
                         (
                             new ImageInfo
                             {
@@ -126,7 +127,7 @@ namespace PhotoOrganizer
                 }
                 catch (Exception _e)
                 {
-                    images.Add
+                    _files.Add
                     (
                         new ImageInfo
                         {
@@ -149,12 +150,13 @@ namespace PhotoOrganizer
             }
 
 
-            ConsoleBox.Text += $@"{Environment.NewLine}{images.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}{Environment.NewLine}";
+            ConsoleBox.Text += $@"{Environment.NewLine}{_files.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}{Environment.NewLine}";
 
-            ProgBar.Maximum = images.Count;
+            ProgBar.Maximum = _files.Count;
             ProgBar.Value = 0;
 
         }
+
         private string CheckPropertyId(Image _img, Int32 _id, bool _isBit = false)
         {
             string _result = string.Empty;
@@ -223,11 +225,11 @@ namespace PhotoOrganizer
         #endregion
 
         #region ProcessFiles
-        private void ProcessFiles()
+        private void ProcessFiles(List<ImageInfo> _files)
         {
             DateTime _curDate = DateTime.Now;
 
-            foreach (ImageInfo _imgInfo in images)
+            foreach (ImageInfo _imgInfo in _files)
             {
                 string _curDir = dir.FullName;
 
@@ -239,7 +241,7 @@ namespace PhotoOrganizer
                     CreateDir(ref _curDir, _curDate.Year.ToString());
 
 
- 
+
 
                     /*
                      * Uncomment this code to get Lat and Long converted to Andress.
@@ -276,23 +278,10 @@ namespace PhotoOrganizer
                         continue;
                     }
 
-                    //TODO: Duplicate check
-                    DirectoryInfo _tempDir = new DirectoryInfo(_curDir);
+                    //TODO: Duplicate check / Create CheckForDups checkbox
 
-                    //if file already exist delete duplicate
-                    foreach (FileInfo _file in _tempDir.GetFiles())
-                    {
-                        if (_imgInfo.File == _file)
-                        {
-                            removableImgs.Add(_imgInfo);
-                            _imgInfo.File.Delete();
-
-                            ProgBar.Value++;
-
-                            
-                            continue;
-                        }
-                    }
+                    //if(CheckForDups.IsChecked.GetValueOrDefault())
+                    //{
                     //if (File.Exists(_curDir))
                     //{
                     //    
@@ -302,6 +291,7 @@ namespace PhotoOrganizer
                     //    ProgBar.Value++;
                     //    continue;
                     //}
+                    //}
 
                     _imgInfo.File.MoveTo(_curDir);
 
@@ -309,13 +299,13 @@ namespace PhotoOrganizer
                 }
                 catch (Exception _e)
                 {
-                ConsoleBox.Text += $"{_e.Message}. on line {_e.Source}.{Environment.NewLine}";
+                    ConsoleBox.Text += $"{_e.Message}. on line {_e.Source}.{Environment.NewLine}";
                 }
             }
 
             //remove all deleted flies from images
-            images.RemoveAll(_item => _item == removableImgs.Find(_rItem => _rItem == _item));
-            ConsoleBox.Text += $@"{images.Count} files moved / deleted!{Environment.NewLine}";
+            //_files.RemoveAll(_item => _item == removableImgs.Find(_rItem => _rItem == _item));
+            ConsoleBox.Text += $@"{_files.Count} files moved / deleted!{Environment.NewLine}";
         }
 
         private void RenameFiles(List<ImageInfo> _files)
