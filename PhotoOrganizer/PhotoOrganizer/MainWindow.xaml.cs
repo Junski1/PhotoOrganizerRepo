@@ -23,6 +23,7 @@ using GoogleMaps.LocationServices;
 using static System.Net.WebRequestMethods;
 using File = System.IO.File;
 using Microsoft.Graph.Models;
+using System.Collections.Concurrent;
 
 
 namespace PhotoOrganizer
@@ -66,7 +67,7 @@ namespace PhotoOrganizer
 
         private async void StartProcess(string _dirPath, string[] _extensions)
         {
-
+            StartBtn.IsEnabled = false;
             ConsoleBox.Text = string.Empty;
 
             if (_extensions.Length <= 0)
@@ -84,20 +85,25 @@ namespace PhotoOrganizer
             List<ImageInfo> _images = new List<ImageInfo>();
             List<ImageInfo> _removableImgs = new List<ImageInfo>();
 
-            await GetFiles(ref _images, _dirPath, _extensions);
+            _images = await GetFiles(_dirPath, _extensions);
 
             ProcessFiles(_images);
 
             if(RenameCheck.IsChecked.GetValueOrDefault())
                RenameFiles(_images);
+
+            StartBtn.IsEnabled = true;
         }
 
         #region GetFiles
-        private async Task GetFiles(ref List<ImageInfo> _files, string _dirPath, string[] _extensions)
+        private async Task<List<ImageInfo>> GetFiles(string _dirPath, string[] _extensions)
         {
             dir = new DirectoryInfo($@"{_dirPath}\");
 
-            foreach (FileInfo _info in dir.GetFilesByExtensions(_extensions))
+            ConcurrentBag<ImageInfo> _files = new ConcurrentBag<ImageInfo>();
+
+            //uses parallel to access multiple treads to utalize all of CPU
+            await Parallel.ForEachAsync(dir.GetFilesByExtensions(_extensions), async (_info, token) => 
             {
                 try
                 {
@@ -116,48 +122,45 @@ namespace PhotoOrganizer
                                  */
 
                                 File = _info,
-                                Date = CheckPropertyId(_tempImg, 0x9003),
-                                Lat = CheckPropertyId(_tempImg, 0x0002, true),
-                                Long = CheckPropertyId(_tempImg, 0x0004, true),
-                                Manufactorer = CheckPropertyId(_tempImg, 0x010F),
-                                Model = CheckPropertyId(_tempImg, 0x0110).Replace(' ', '_')
+                                Date = await CheckPropertyId(_tempImg, 0x9003),
+                                Lat = await CheckPropertyId(_tempImg, 0x0002, true),
+                                Long = await CheckPropertyId(_tempImg, 0x0004, true),
+                                Manufactorer = await CheckPropertyId(_tempImg, 0x010F),
+                                Model = (await CheckPropertyId(_tempImg, 0x0110)).Replace(' ', '_')
                             }
-                        );
+                            );
                     }
                 }
                 catch (Exception _e)
                 {
                     _files.Add
-                    (
-                        new ImageInfo
-                        {
-                            /*  
-                             * 0x9003 = date
-                             * 0x0002 = Lat
-                             * 0x0004 = Long
-                             * 0x010F = manufactorer
-                             * 0x0110 = model
-                             */
+                   (
+                       new ImageInfo
+                       {
+                           /*  
+                            * 0x9003 = date
+                            * 0x0002 = Lat
+                            * 0x0004 = Long
+                            * 0x010F = manufactorer
+                            * 0x0110 = model
+                            */
 
-                            File = _info,
-                            Date = _info.CreationTime.ToString(),
-                            Manufactorer = "Video",
-                            Model = "Video"
-                        }
-                    );
+                           File = _info,
+                           Date = _info.CreationTime.ToString(),
+                           Manufactorer = "Video",
+                           Model = "Video"
+                       }
+                   );
                 }
-                ConsoleBox.Text += $"File Found {Environment.NewLine}";
-            }
-
+                //ProgBar.Maximum = _files.Count;
+            });
 
             ConsoleBox.Text += $@"{Environment.NewLine}{_files.Count} files found with ({string.Concat(_extensions).Replace(".", " .")}) Extensions in {_dirPath}\ directory!{Environment.NewLine}{Environment.NewLine}";
 
-            ProgBar.Maximum = _files.Count;
-            ProgBar.Value = 0;
-
+            return _files.ToList();
         }
 
-        private string CheckPropertyId(Image _img, Int32 _id, bool _isBit = false)
+        private async Task<string> CheckPropertyId(Image _img, Int32 _id, bool _isBit = false)
         {
             string _result = string.Empty;
 
@@ -166,9 +169,9 @@ namespace PhotoOrganizer
                 if (_PropId == _id)
                 {
                     if (_isBit)
-                        _result = BitConvertLatLong(_img.GetPropertyItem(_id));
+                        _result = await BitConvertLatLong(_img.GetPropertyItem(_id));
                     else
-                        _result = EncodingToString(_img.GetPropertyItem(_id));
+                        _result = await EncodingToString(_img.GetPropertyItem(_id));
 
                     break;
                 }
@@ -176,7 +179,7 @@ namespace PhotoOrganizer
             return _result.Trim('\0');
         }
 
-        private string BitConvertLatLong(PropertyItem _item)
+        private async Task<string> BitConvertLatLong(PropertyItem _item)
         {
             //degrees  
 
@@ -198,7 +201,7 @@ namespace PhotoOrganizer
             return _dblGPSLatitude.ToString();
         }
 
-        private string EncodingToString(PropertyItem _item)
+        private async Task<string> EncodingToString(PropertyItem _item)
         {
             ASCIIEncoding _encoding = new ASCIIEncoding();
 
@@ -239,9 +242,6 @@ namespace PhotoOrganizer
                     _curDate = DateTime.Parse(_imgInfo.Date);
 
                     CreateDir(ref _curDir, _curDate.Year.ToString());
-
-
-
 
                     /*
                      * Uncomment this code to get Lat and Long converted to Andress.
